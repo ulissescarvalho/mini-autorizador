@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import br.com.vr.miniautorizador.assembler.CartaoAssembler;
 import br.com.vr.miniautorizador.dto.entrada.CartaoRequestDTO;
 import br.com.vr.miniautorizador.dto.saida.CartaoResponseDTO;
-import br.com.vr.miniautorizador.mapper.CartaoAssembler;
 import br.com.vr.miniautorizador.model.Cartao;
 import br.com.vr.miniautorizador.repository.CartaoRepository;
 
