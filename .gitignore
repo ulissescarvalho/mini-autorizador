@@ -1,0 +1,10 @@
+**/target/
+**/.*
+
+#allow
+!.gitignore
+
+
+#intellij
+*.iml
+
