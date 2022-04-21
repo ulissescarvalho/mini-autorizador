@@ -22,7 +22,7 @@ public class CartaoService {
 
 	public Optional<CartaoResponseDTO> create(CartaoRequestDTO dto) {
 		CartaoAssembler assembler = new CartaoAssembler();
-		Cartao model = assembler.criarCartaoRequestDTOToEntity(dto);
+		Cartao model = assembler.criarCartaoRequestDTOToModel(dto);
 		cartaoRepository.findById(model.getNumeroCartao()).ifPresentOrElse((c) -> {
 			throw new RuntimeException("Cartao ja existente");
 		}, () -> {

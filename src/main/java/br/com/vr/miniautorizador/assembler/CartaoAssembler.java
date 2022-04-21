@@ -16,7 +16,7 @@ public class CartaoAssembler {
 		return response;
 	}
 
-	public Cartao criarCartaoRequestDTOToEntity(CartaoRequestDTO dto) {
+	public Cartao criarCartaoRequestDTOToModel(CartaoRequestDTO dto) {
 		Cartao cartao = new Cartao();
 
 		cartao.setNumeroCartao(dto.getNumeroCartao());
