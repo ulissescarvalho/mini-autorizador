@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.vr.miniautorizador.assembler.TransacaoAssembler;
 import br.com.vr.miniautorizador.dto.entrada.TransacaoRequestDTO;
+import br.com.vr.miniautorizador.excecao.MiniAutorizadorNegocioException;
 import br.com.vr.miniautorizador.model.Cartao;
 import br.com.vr.miniautorizador.model.Transacao;
 import br.com.vr.miniautorizador.repository.CartaoRepository;
@@ -27,7 +28,7 @@ public class TransacaoService {
 	}
 
 	@Transactional(propagation = Propagation.SUPPORTS)
-	public void realizarTransacao(TransacaoRequestDTO dto) throws Exception {
+	public void realizarTransacao(TransacaoRequestDTO dto) throws MiniAutorizadorNegocioException {
 		TransacaoAssembler assembler = new TransacaoAssembler();
 		Optional<Cartao> optCartao = recuperarCartao(dto);
 
@@ -57,18 +58,22 @@ public class TransacaoService {
 		return cartao;
 	}
 
-	private Optional<Cartao> recuperarCartao(TransacaoRequestDTO dto) {
+	private Optional<Cartao> recuperarCartao(TransacaoRequestDTO dto) throws MiniAutorizadorNegocioException {
 		return Optional.ofNullable(cartaoRepository.findById(dto.getNumeroCartao())
-				.orElseThrow(() -> new RuntimeException("Cartao nao encontrado")));
+				.orElseThrow(() -> new MiniAutorizadorNegocioException("Cartao nao encontrado")));
 	}
 
-	private void validarSenha(Optional<Cartao> optionalCartao, Transacao transacao) throws Exception {
-		optionalCartao.filter(cartao -> CryptoUtils.decryptPassword(cartao.getSenha())
-				.equals(CryptoUtils.decryptPassword(transacao.getSenha()))).orElseThrow(Exception::new);
+	private void validarSenha(Optional<Cartao> optionalCartao, Transacao transacao)
+			throws MiniAutorizadorNegocioException {
+		optionalCartao
+				.filter(cartao -> CryptoUtils.decryptPassword(cartao.getSenha())
+						.equals(CryptoUtils.decryptPassword(transacao.getSenha())))
+				.orElseThrow(() -> new MiniAutorizadorNegocioException("Senha incorreta"));
 	}
 
-	private void validarSaldo(Optional<Cartao> cartao, Transacao transacao) throws Exception {
-		cartao.filter(c -> transacao.getValor().compareTo(c.getSaldo()) < 0).orElseThrow(Exception::new);
+	private void validarSaldo(Optional<Cartao> cartao, Transacao transacao) throws MiniAutorizadorNegocioException {
+		cartao.filter(c -> transacao.getValor().compareTo(c.getSaldo()) < 0)
+				.orElseThrow(() -> new MiniAutorizadorNegocioException("Saldo insuficiente"));
 	}
 
 }

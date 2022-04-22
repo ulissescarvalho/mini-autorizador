@@ -2,6 +2,7 @@ package br.com.vr.miniautorizador.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -24,6 +25,7 @@ public class Transacao implements Serializable {
 	private String senha;
 	private BigDecimal valor;
 	private BigDecimal saldoAtual;
+	private Instant dataCadastro;
 
 	public String getId() {
 		return id;
@@ -63,6 +65,14 @@ public class Transacao implements Serializable {
 
 	public void setSaldoAtual(BigDecimal saldoAtual) {
 		this.saldoAtual = saldoAtual;
+	}
+
+	public Instant getDataCadastro() {
+		return dataCadastro;
+	}
+
+	public void setDataCadastro(Instant dataCadastro) {
+		this.dataCadastro = dataCadastro;
 	}
 
 }

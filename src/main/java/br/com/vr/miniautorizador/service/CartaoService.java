@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import br.com.vr.miniautorizador.assembler.CartaoAssembler;
 import br.com.vr.miniautorizador.dto.entrada.CartaoRequestDTO;
 import br.com.vr.miniautorizador.dto.saida.CartaoResponseDTO;
+import br.com.vr.miniautorizador.excecao.MiniAutorizadorNegocioException;
+import br.com.vr.miniautorizador.excecao.CartaoRuntimeException;
 import br.com.vr.miniautorizador.model.Cartao;
 import br.com.vr.miniautorizador.repository.CartaoRepository;
 
@@ -24,22 +26,23 @@ public class CartaoService {
 		CartaoAssembler assembler = new CartaoAssembler();
 		Cartao model = assembler.criarCartaoRequestDTOToModel(dto);
 		cartaoRepository.findById(model.getNumeroCartao()).ifPresentOrElse((c) -> {
-			throw new RuntimeException("Cartao ja existente");
+			throw new CartaoRuntimeException("Cartao ja existente");
 		}, () -> {
-			Cartao cartao = configurarNovoCartao(model);
-			cartaoRepository.insert(cartao);
+			configurarNovoCartao(model);
+			cartaoRepository.insert(model);
 		});
 		return Optional.of(assembler.montarCartaoResponseDTO(model));
 	}
 
-	private Cartao configurarNovoCartao(Cartao cartao) {
+	private void configurarNovoCartao(Cartao cartao) {
 		cartao.setSaldo(new BigDecimal("500.0"));
-		return cartao;
 	}
 
-	public BigDecimal recuperarSaldo(String numeroCartao) {
-		// TODO verificar se cartao existe
-		return cartaoRepository.findById(numeroCartao).get().getSaldo();
+	public BigDecimal recuperarSaldo(String numeroCartao) throws MiniAutorizadorNegocioException {
+		Optional<Cartao> optCartao = Optional.ofNullable(cartaoRepository.findById(numeroCartao))
+				.orElseThrow(() -> new MiniAutorizadorNegocioException("Cartao nao encontrado"));
+
+		return optCartao.get().getSaldo();
 	}
 
 }

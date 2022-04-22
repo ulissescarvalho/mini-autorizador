@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.vr.miniautorizador.dto.entrada.CartaoRequestDTO;
+import br.com.vr.miniautorizador.excecao.MiniAutorizadorNegocioException;
 import br.com.vr.miniautorizador.service.CartaoService;
 
 @RestController
@@ -27,13 +29,16 @@ public class CartaoController {
 
 	@PostMapping
 	public ResponseEntity<?> criarCartao(@Valid @RequestBody CartaoRequestDTO dto) {
-		return ResponseEntity.ok(service.create(dto));
+		return ResponseEntity.ok(service.create(dto)).status(HttpStatus.CREATED).build();
 	}
 
 	@GetMapping("{numeroCartao}")
 	public ResponseEntity<BigDecimal> consultarSaldo(@PathVariable String numeroCartao) {
-		BigDecimal saldo = service.recuperarSaldo(numeroCartao);
-		return ResponseEntity.ok(saldo);
+		try {
+			return ResponseEntity.ok(service.recuperarSaldo(numeroCartao));
+		} catch (MiniAutorizadorNegocioException e) {
+			return ResponseEntity.ok(e.getMessage()).status(HttpStatus.BAD_REQUEST).build();
+		}
 	}
 
 }
